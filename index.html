@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <link rel="stylesheet" href="./pannellum/pannellum.css"/>
+  <script type="text/javascript" src="./pannellum/pannellum.js"></script>
+  <meta charset="UTF-8" />
+  <title>Сфера-УИС</title>
+  <style>
+    /* МЕНЮ */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    #mainContent {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 400px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 40px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    h1 {
+      margin-bottom: 40px;
+      color: #333;
+      font-size: 2.5rem;
+    }
+    button {
+      padding: 12px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s ease;
+      width: 100%;
+      max-width: 310px;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Страницы панорам и списков */
+    #utk, #schemaPage, #polygonForSearch {
+      position: relative;
+      background: #1a1a1a;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      flex-direction: row;
+      overflow: hidden;
+    }
+    .sidebar-container {
+      width: 300px;
+      background-color: #222;
+      border-right: 2px solid #444;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .sidebar-container h3 {
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      margin: 0;
+      border-bottom: 1px solid #444;
+    }
+    .button-list-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .button-list-container button {
+      width: 100%;
+      max-width: none; 
+      margin-bottom: 0;
+      padding: 12px;
+      font-size: 0.95rem;
+      text-align: left;
+    }
+    .view-area-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 50px;
+      box-sizing: border-box;
+      height: 100vh;
+    }
+    .panorama-frame {
+      width: 100% !important; 
+      height: 100% !important;
+      max-width: 1200px; 
+      max-height: 800px; 
+      border: 3px solid #333;
+      box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    }
+
+    /* Кнопки выхода*/
+    #unifiedExitBtn {
+      position: fixed;
+      z-index: 1100;
+      width: auto;
+      display: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    #unifiedExitBtn {
+      top: 20px;
+      right: 20px;
+    }
+
+    #unifiedExitBtn:hover {
+      background-color: #0056b3;
+    }
+
+    /* версия */
+    #versionNumber {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      text-align: right;
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Служебные элементы -->
+  <button id="unifiedExitBtn">Выход в меню</button>
+  
+  <div id="gerbContainer" style="position: absolute; top: 10px; left: 10px; z-index: 1000;">
+  <img src="./images/other/gerbSUI.png" alt="Герб СЮИ" style="width: 180px; height: auto;">
+  </div>
+
+  <!-- Главное меню -->
+  <div>
+  <div id="mainContent">
+    <h1>Сфера-УИС</h1>
+    <button id="SchemaPageBtn">Территория института</button>
+    <button id="utkBtn">Учебно-треннировочный комплекс</button>
+    <button id="polygonForSearchBtn">Обыскной полигон</button>
+  </div>
+  <div id="versionNumber"> Версия: 3.3.1 <p>Дата последнего обновления: 02.04.2026</p></div>
+</div>
+
+  <!-- Далее идут страницы самих панорам -->
+  <div id="schemaPage">
+    <div class="sidebar-container">
+      <h3>Навигация по территории</h3>
+      <div class="button-list-container">
+        <button onclick="currentViewer.loadScene('plac')">1. Плац</button>
+        <button onclick="currentViewer.loadScene('cerkov')">2. Церковь</button>
+        <button onclick="currentViewer.loadScene('PazgryzochnyaStolovoi')">3. Котельное отделение</button>
+        <button onclick="currentViewer.loadScene('Byfet')">4. Буфет</button>
+        <button onclick="currentViewer.loadScene('ZadnyiVhodStolovya')">5. Задний вход столовой</button>
+        <button onclick="currentViewer.loadScene('CtaryiTip')">6. Тир</button>
+        <button onclick="currentViewer.loadScene('KPP1')">7. КПП №1</button>
+        <button onclick="currentViewer.loadScene('MejyKPP1iBuro')">8. Аллея</button>
+        <button onclick="currentViewer.loadScene('Buro')">9. Главный вход</button>
+        <button onclick="currentViewer.loadScene('ParkovkaAdminka')">10. Парковка</button>
+        <button onclick="currentViewer.loadScene('levVxodUchko')">11. Учебный корпус</button>
+      </div>
+    </div>  
+    <div class="view-area-container"><div id="panoramaSchema" class="panorama-frame"></div></div>
+  </div>
+
+  <div id="utk">
+    <div class="sidebar-container">
+      <h3>Навигация УТК</h3>
+      <div class="button-list-container">
+        <button onclick="currentViewer.loadScene('vxodUTK')">1. Вход на УТК</button>
+        <button onclick="currentViewer.loadScene('voroti')">2. Ворота</button>
+        <button onclick="currentViewer.loadScene('vorotaObrat')">3. Ворота cзади</button>
+        <button onclick="currentViewer.loadScene('Avtozak')">4. Автозак</button>
+        <button onclick="currentViewer.loadScene('rubeji1')">5. Рубежи №1</button>
+        <button onclick="currentViewer.loadScene('rubeji2')">6. Рубежи №2</button>
+        <button onclick="currentViewer.loadScene('rubeji3')">7. Рубежи №3</button>
+        <button onclick="currentViewer.loadScene('rubeji4')">8. Рубежи №4</button>
+        <button onclick="currentViewer.loadScene('KPP')">9. КПП снаружи</button>
+        <button onclick="currentViewer.loadScene('zaryadka')">10. Зарядка оружия</button>
+        <button onclick="currentViewer.loadScene('vihka')">11. Вышка</button>
+        <button onclick="currentViewer.loadScene('oxran')">12. Пост охраны</button>
+        <button onclick="currentViewer.loadScene('postKPP')">13. Пост часового КПП</button>
+        <button onclick="currentViewer.loadScene('PYTSN')">14. Пост оператора ПУТСН</button>
+        <button onclick="currentViewer.loadScene('KDS')">15. КДС</button>
+        <button onclick="currentViewer.loadScene('dejChast1')">16. Дежурная часть №1</button>
+        <button onclick="currentViewer.loadScene('dejChast2')">17. Дежурная часть №2</button>
+        <button onclick="currentViewer.loadScene('dejChast3')">18. Дежурная часть №3</button>
+        <button onclick="currentViewer.loadScene('postHIZO')">19. Пост ШИЗО</button>
+        <button onclick="currentViewer.loadScene('HIZO')">20. Камера ШИЗО</button>
+        <button onclick="currentViewer.loadScene('vhodKPP')">21. Вход КПП</button>
+        <button onclick="currentViewer.loadScene('centrKPP')">22. Центр КПП</button>
+        <button onclick="currentViewer.loadScene('postInspORiN')">23. Пост инспектора ОРиН</button>
+        <button onclick="currentViewer.loadScene('ychebAydit')">24. Учебная аудитория</button>
+      </div>
+    </div>  
+    <div class="view-area-container"><div id="panoramautk" class="panorama-frame"></div></div>
+  </div>
+
+  <div id="polygonForSearch">
+    <div class="sidebar-container">
+      <h3>Навигация Полигон</h3>
+      <div class="button-list-container">
+        <button onclick="currentViewer.loadScene('workshop1')">1. Производственный цех №1</button>
+        <button onclick="currentViewer.loadScene('workshop2')">2. Производственный цех №2</button>
+        <button onclick="currentViewer.loadScene('workshop3')">3. Производственный цех №3</button>
+        <button onclick="currentViewer.loadScene('toolStorageRoom')">4. Инструментальная кладовая</button>
+        <button onclick="currentViewer.loadScene('squadLeader')">5. Кабинет начальника отряда</button>
+        <button onclick="currentViewer.loadScene('utilityRoom')">6. Комната быта</button>
+        <button onclick="currentViewer.loadScene('sleepingZone')">7. Спальное помещение</button>
+      </div>
+    </div>  
+    <div class="view-area-container"><div id="panoramaPolygon" class="panorama-frame"></div></div>
+  </div>
+
+<script>
+
+  var currentViewer = null;
+  var currentPageId = 'mainContent';
+
+  // Контейнер с системами панорам на страницах
+  const tourConfigs = {
+    schema: {
+      "default": { "firstScene": "plac", "author": "Devaes", "sceneFadeDuration": 1000, "autoLoad": true},
+      "scenes": {
+          "plac": {
+              "title": "Плац",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 180,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/plac.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 3,
+                      "yaw": 97,
+                      "type": "scene",
+                      "text": "Церковь",
+                      "sceneId": "cerkov"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 290,
+                      "type": "scene",
+                      "text": "Вход в учебный корпус",
+                      "sceneId": "levVxodUchko"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 210,
+                      "type": "scene",
+                      "text": "Тир",
+                      "sceneId": "CtaryiTip"
+                  }
+              ]
+          },
+
+          "cerkov": {
+              "title": "Церковь",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 190,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/cerkov.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 125,
+                      "type": "scene",
+                      "text": "Плац",
+                      "sceneId": "plac",
+                      "targetYaw": -23,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 90,
+                      "type": "scene",
+                      "text": "Котельное отделение",
+                      "sceneId": "PazgryzochnyaStolovoi",
+                  }
+              ]
+          },
+
+          "PazgryzochnyaStolovoi": {
+              "title": "Котельное отделение",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 190,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/PazgryzochnyaStolovoi.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 358,
+                      "yaw": 270,
+                      "type": "scene",
+                      "text": "Церковь",
+                      "sceneId": "cerkov",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 118,
+                      "type": "scene",
+                      "text": "Буфет",
+                      "sceneId": "Byfet",
+                  }
+              ]
+          },
+
+          "Byfet": {
+              "title": "Буфет",
+              "hfov": 110,
+              "yaw": 200,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/Byfet.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 140,
+                      "type": "scene",
+                      "text": "Котельное отделение",
+                      "sceneId": "PazgryzochnyaStolovoi",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 356,
+                      "type": "scene",
+                      "text": "Задний выход из столовой",
+                      "sceneId": "ZadnyiVhodStolovya",
+                  }
+              ]
+          },
+
+          "ZadnyiVhodStolovya": {
+              "title": "Задний выход из столовой",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/ZadnyiVhodStolovya.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 170,
+                      "type": "scene",
+                      "text": "Буфет",
+                      "sceneId": "Byfet",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 5,
+                      "type": "scene",
+                      "text": "Тир",
+                      "sceneId": "CtaryiTip",
+                  }
+              ]
+          },
+
+          "CtaryiTip": {
+              "title": "Тир",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/CtaryiTip.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 305,
+                      "type": "scene",
+                      "text": "Задний выход из столовой",
+                      "sceneId": "ZadnyiVhodStolovya",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 40,
+                      "type": "scene",
+                      "text": "КПП №1",
+                      "sceneId": "KPP1",
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 198,
+                      "type": "scene",
+                      "text": "Плац",
+                      "sceneId": "plac",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Вход в учебный корпус",
+                      "sceneId": "levVxodUchko",
+                  }
+              ]
+          },
+
+          "KPP1": {
+              "title": "КПП 1",
+              "hfov": 110,
+              "yaw": 170,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/KPP1.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 2,
+                      "yaw": 80,
+                      "type": "scene",
+                      "text": "Тир",
+                      "sceneId": "CtaryiTip",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 0,
+                      "type": "scene",
+                      "text": "Алея",
+                      "sceneId": "MejyKPP1iBuro"
+                  }
+
+              ]
+          },
+
+          "MejyKPP1iBuro": {
+              "title": "Алея",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/MejyKPP1iBuro.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "КПП № 1",
+                      "sceneId": "KPP1",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 0,
+                      "type": "scene",
+                      "text": "Главный вход",
+                      "sceneId": "Buro"
+                  }
+              ]
+          },
+
+          "Buro": {
+              "title": "Главый вход",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/Buro.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 80,
+                      "type": "scene",
+                      "text": "Алея",
+                      "sceneId": "MejyKPP1iBuro",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 356,
+                      "yaw": 275,
+                      "type": "scene",
+                      "text": "Парковка",
+                      "sceneId": "ParkovkaAdminka"
+                  }
+              ]
+          },
+
+          "ParkovkaAdminka": {
+              "title": "Парковка",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/ParkovkaAdminka.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 90,
+                      "type": "scene",
+                      "text": "Главный вход",
+                      "sceneId": "Buro",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  }
+              ]
+          },
+
+          "levVxodUchko": {
+              "title": "Вход в учебный корпус",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Institute territory/levVxodUchko.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 105,
+                      "type": "scene",
+                      "text": "Плац",
+                      "sceneId": "plac",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 170,
+                      "type": "scene",
+                      "text": "Тир",
+                      "sceneId": "CtaryiTip"
+                  }
+              ]
+          }
+      }
+    },
+
+    polygon: {
+      "default": {"firstScene": "workshop1", "author": "Devaes", "sceneFadeDuration": 1000, "autoLoad": true},
+      "scenes": {
+          "workshop1": {
+              "title": "Производственный цех №1",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 180,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_155201_00_214.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Производственный цех №2",
+                      "sceneId": "workshop2"
+                  }
+              ]
+          },
+
+          "workshop2": {
+              "title": "Производственный цех №2",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 190,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_155129_00_213.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 10,
+                      "type": "scene",
+                      "text": "Производственный цех №1",
+                      "sceneId": "workshop1",
+                      "targetYaw": -23,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 191,
+                      "type": "scene",
+                      "text": "Производственный цех №3",
+                      "sceneId": "workshop3",
+                  }
+              ]
+          },
+
+          "workshop3": {
+              "title": "Производственный цех №3",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 190,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_155058_00_212.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 5,
+                      "type": "scene",
+                      "text": "Производственный цех №2",
+                      "sceneId": "workshop2",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 188,
+                      "type": "scene",
+                      "text": "Инструментальная кладовая",
+                      "sceneId": "toolStorageRoom",
+                  }
+              ]
+          },
+
+          "toolStorageRoom": {
+              "title": "Инструментальная кладовая",
+              "hfov": 110,
+              "yaw": 200,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_154827_00_211.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 5,
+                      "type": "scene",
+                      "text": "Производственный цех №3",
+                      "sceneId": "workshop3",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 200,
+                      "type": "scene",
+                      "text": "Кабинет начальника отряда",
+                      "sceneId": "squadLeader",
+                  }
+              ]
+          },
+
+          "squadLeader": {
+              "title": "Кабинет начальника отряда",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_154756_00_210.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 2,
+                      "type": "scene",
+                      "text": "Инструментальная кладовая",
+                      "sceneId": "toolStorageRoom",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 190,
+                      "type": "scene",
+                      "text": "Комната быта",
+                      "sceneId": "utilityRoom",
+                  }
+              ]
+          },
+
+          "utilityRoom": {
+              "title": "Комната быта",
+              "hfov": 110,
+              "yaw": 185,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_154658_00_209.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 2,
+                      "type": "scene",
+                      "text": "Кабинет начальника отряда",
+                      "sceneId": "squadLeader",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 185,
+                      "type": "scene",
+                      "text": "Спальное помещение",
+                      "sceneId": "sleepingZone",
+                  }
+              ]
+          },
+
+          "sleepingZone": {  // Определение новой сцены
+              "title": "Спальное помещение",
+              "hfov": 110,
+              "yaw": 170,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/Polygon for search/IMG_20251029_154540_00_208.jpg",
+              "hotSpots": [
+                  {
+                      "pitch":0,
+                      "yaw": 355,
+                      "type": "scene",
+                      "text": "Комната быта",
+                      "sceneId": "utilityRoom",
+                      "targetYaw": 0,
+                      "targetPitch": 2
+                  }
+              ]
+          }
+      }
+    },
+
+    utk: {
+        "default": {"firstScene": "vxodUTK", "author": "Devaes", "sceneFadeDuration": 1000, "autoLoad": true},
+        "scenes": {
+          "vxodUTK": {
+              "title": "Вход на УТК",
+              "hfov": 110,
+              "pitch": -3,
+              "yaw": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_155840_00_215.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 317,
+                      "type": "scene",
+                      "text": "Ворота",
+                      "sceneId": "voroti"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 5,
+                      "type": "scene",
+                      "text": "Автозак",
+                      "sceneId": "Avtozak"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 65,
+                      "type": "scene",
+                      "text": "Рубежи №1",
+                      "sceneId": "rubeji1"
+                  }
+              ]
+          },
+
+          "rubeji1": {
+              "title": "Рубежи №1",
+              "hfov": 110,
+              "yaw": 180,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_160225_00_217.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 15,
+                      "type": "scene",
+                      "text": "Вход на УТК",
+                      "sceneId": "vxodUTK",
+                      "targetYaw": -23,
+                      "targetPitch": 2
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 220,
+                      "type": "scene",
+                      "text": "Рубежи №2",
+                      "sceneId": "rubeji2",
+                      "targetYaw": -23,
+                      "targetPitch": 2
+                  }
+              ]
+          },
+
+          "rubeji2": {
+              "title": "Рубежи №2",
+              "hfov": 110,
+              "yaw": 180,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_160314_00_218.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 350,
+                      "type": "scene",
+                      "text": "Рубежи №1",
+                      "sceneId": "rubeji1"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 220,
+                      "type": "scene",
+                      "text": "Рубежи №3",
+                      "sceneId": "rubeji3",
+                      "targetYaw": -23,
+                      "targetPitch": 2
+                  }
+              ]
+          },
+
+          "rubeji3": {
+              "title": "Рубежи №3",
+              "hfov": 110,
+              "yaw": 170,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_160520_00_219.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Рубежи №2",
+                      "sceneId": "rubeji2"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 0,
+                      "type": "scene",
+                      "text": "Рубежи №4",
+                      "sceneId": "rubeji4"
+                  }
+              ]
+          },
+
+          "rubeji4": {
+              "title": "Рубежи №4",
+              "hfov": 110,
+              "yaw": 270,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_160628_00_220.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 345,
+                      "type": "scene",
+                      "text": "Рубежи №3",
+                      "sceneId": "rubeji3"
+                  }
+              ]
+          },
+
+          "Avtozak": {
+              "title": "Автозак",
+              "hfov": 110,
+              "yaw": 170,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_160934_00_221.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 160,
+                      "type": "scene",
+                      "text": "Вход на УТК",
+                      "sceneId": "vxodUTK"
+                  }
+              ]
+          },
+
+          "voroti": {
+              "title": "Ворота",
+              "hfov": 110,
+              "yaw": 170,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_161237_00_222.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 200,
+                      "type": "scene",
+                      "text": "Вход на УТК",
+                      "sceneId": "vxodUTK"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 150,
+                      "type": "scene",
+                      "text": "Ворота с обратной стороны",
+                      "sceneId": "vorotaObrat"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 10,
+                      "type": "scene",
+                      "text": "КПП снаружи",
+                      "sceneId": "KPP"
+                  }
+              ]
+          },
+
+          "vorotaObrat": {
+              "title": "Ворота с обратной стороны",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_161324_00_223.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 290,
+                      "type": "scene",
+                      "text": "Ворота",
+                      "sceneId": "voroti"
+                  }
+              ]
+          },
+
+          "KPP": {
+              "title": "КПП снаружи",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_161405_00_224.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 90,
+                      "type": "scene",
+                      "text": "Ворота",
+                      "sceneId": "voroti"
+                  },
+                   {
+                      "pitch": 0,
+                      "yaw": 0,
+                      "type": "scene",
+                      "text": "Вход КПП",
+                      "sceneId": "vhodKPP"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 275,
+                      "type": "scene",
+                      "text": "Стойка для заряжания оружия",
+                      "sceneId": "zaryadka",
+                      "targetYaw": 180,
+                      "targetPitch": 0
+                  }
+              ]
+          },
+
+          "zaryadka": {
+              "title": "Стойка для заряжания оружия",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_161456_00_225.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 280,
+                      "type": "scene",
+                      "text": "КПП снаружи",
+                      "sceneId": "KPP"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 90,
+                      "type": "scene",
+                      "text": "Вышка",
+                      "sceneId": "vihka"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 250,
+                      "type": "scene",
+                      "text": "Пост оператора ПУТСН",
+                      "sceneId": "PYTSN"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 260,
+                      "type": "scene",
+                      "text": "Пост охраны",
+                      "sceneId": "oxran"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 125,
+                      "type": "scene",
+                      "text": "Пост ШИЗО",
+                      "sceneId": "postHIZO"
+                  }
+              ]
+          },
+
+          "vihka": {
+              "title": "Вышка",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_161622_00_226.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 355,
+                      "yaw": 280,
+                      "type": "scene",
+                      "text": "Стойка для заряжания оружия",
+                      "sceneId": "zaryadka"
+                  },
+                  {
+                      "pitch": 355,
+                      "yaw": 257,
+                      "type": "scene",
+                      "text": "Пост инспектора ОРиН",
+                      "sceneId": "postInspORiN"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 160,
+                      "type": "scene",
+                      "text": "Учебная аудитория",
+                      "sceneId": "ychebAydit"
+                  }
+              ]
+          },
+
+          "oxran": {
+              "title": "Пост охраны",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_162026_00_227.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 330,
+                      "type": "scene",
+                      "text": "КДС",
+                      "sceneId": "KDS"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 280,
+                      "type": "scene",
+                      "text": "Стойка для заряжания оружия",
+                      "sceneId": "zaryadka"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 250,
+                      "type": "scene",
+                      "text": "Пост часового КПП",
+                      "sceneId": "postKPP"
+                  }
+              ]
+          },
+
+          "postKPP": {
+              "title": "Пост часового КПП",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_162101_00_228.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 90,
+                      "type": "scene",
+                      "text": "Пост охраны",
+                      "sceneId": "oxran"
+                  }
+              ]
+          },
+
+          "PYTSN": {
+              "title": "Пост оператора ПУТСН",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_162536_00_229.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 40,
+                      "type": "scene",
+                      "text": "КДС",
+                      "sceneId": "KDS"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 320,
+                      "type": "scene",
+                      "text": "Стойка для заряжания оружия",
+                      "sceneId": "zaryadka"
+                  }
+              ]
+          },
+
+          "KDS": {
+              "title": "КДС",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251029_162701_00_230.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 305,
+                      "type": "scene",
+                      "text": "Дежурная часть №2",
+                      "sceneId": "dejChast2"
+                  },
+                  {
+                      "pitch": 355,
+                      "yaw": 265,
+                      "type": "scene",
+                      "text": "Пост оператора ПУТСН",
+                      "sceneId": "PYTSN"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 198,
+                      "type": "scene",
+                      "text": "Пост охраны",
+                      "sceneId": "oxran"
+                  }
+              ]
+          },
+
+          "dejChast1": {
+              "title": "Дежурная часть №1",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_140022_00_231.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 0,
+                      "type": "scene",
+                      "text": "Дежурная часть №2",
+                      "sceneId": "dejChast2"
+                  }
+              ]
+          },
+
+          "dejChast2": {
+              "title": "Дежурная часть №2",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_140128_00_233.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 355,
+                      "type": "scene",
+                      "text": "Дежурная часть №1",
+                      "sceneId": "dejChast1"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Дежурная часть №3",
+                      "sceneId": "dejChast3"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 90,
+                      "type": "scene",
+                      "text": "КДС",
+                      "sceneId": "KDS"
+                  }
+              ]
+          },
+
+          "dejChast3": {
+              "title": "Дежурная часть №3",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_140237_00_235.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 170,
+                      "type": "scene",
+                      "text": "Пост ШИЗО",
+                      "sceneId": "postHIZO"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 265,
+                      "type": "scene",
+                      "text": "Дежурная часть №2",
+                      "sceneId": "dejChast2"
+                  }
+              ]
+          },
+
+          "postHIZO": {
+              "title": "Пост ШИЗО",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_140500_00_236.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 10,
+                      "type": "scene",
+                      "text": "Камера ШИ3О",
+                      "sceneId": "HIZO"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 100,
+                      "type": "scene",
+                      "text": "Дежурная часть №3",
+                      "sceneId": "dejChast3"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 135,
+                      "type": "scene",
+                      "text": "Стойка для заряжания оружия",
+                      "sceneId": "zaryadka"
+                  }
+              ]
+          },
+
+          "HIZO": {
+              "title": "Камера ШИЗО",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_140640_00_237.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Пост ШИЗО",
+                      "sceneId": "postHIZO"
+                  }
+              ]
+          },
+
+          "vhodKPP": {
+              "title": "Вход КПП",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_141114_00_238.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "КПП снаружи",
+                      "sceneId": "KPP"
+                  },
+                  {
+                      "pitch": 0,
+                      "yaw": 0,
+                      "type": "scene",
+                      "text": "Центр КПП",
+                      "sceneId": "centrKPP"
+                  }
+              ]
+          },
+
+          "centrKPP": {
+              "title": "Центр КПП",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_141151_00_239.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Вход КПП",
+                      "sceneId": "vhodKPP"
+                  }
+              ]
+          },
+
+          "postInspORiN": {
+              "title": "Пост инспектора ОРиН",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_141637_00_240.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 180,
+                      "type": "scene",
+                      "text": "Вышка",
+                      "sceneId": "vihka"
+                  }
+              ]
+          },
+
+          "ychebAydit": {
+              "title": "Учебная аудитория",
+              "hfov": 110,
+              "yaw": 0,
+              "pitch": 0,
+              "type": "equirectangular",
+              "panorama": "./images/UTK/IMG_20251031_141735_00_241.jpg",
+              "hotSpots": [
+                  {
+                      "pitch": 0,
+                      "yaw": 135,
+                      "type": "scene",
+                      "text": "Вышка",
+                      "sceneId": "vihka"
+                  }
+              ]
+          }
+      }
+    },
+  };
+  
+  // Функция отрисовки панорамы
+  function setupPanorama(configKey, containerId) {
+    if (currentViewer) { currentViewer.destroy(); }
+    const container = document.getElementById(containerId);
+    if (container && tourConfigs[configKey]) {
+      currentViewer = pannellum.viewer(containerId, tourConfigs[configKey]);
+    }
+  }
+
+  // Функция управления кнопками выхода, назад к списку, гербом
+  function openPage(pageId, configKey) {
+    const mainContent = document.getElementById('mainContent');
+    const unifiedExitBtn = document.getElementById('unifiedExitBtn');
+    const gerb = document.getElementById('gerbContainer');
+    const objectsExitPages = ['schemaPage', 'polygonForSearch', 'utk'];
+    const allPages = ['mainContent','schemaPage', 'polygonForSearch', 'utk'];
+    const targetPage = document.getElementById(pageId);
+    currentPageId = pageId;
+    
+    allPages.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    if (pageId === 'instructionPage') {
+      targetPage.style.display = 'block';
+    } else {
+      targetPage.style.display = 'flex';
+    }
+    if (pageId === 'mainContent') {
+      gerb.style.display = 'block';
+    } else {
+      gerb.style.display = 'none';
+    }
+
+    if (objectsExitPages.includes(pageId)) {
+      unifiedExitBtn.style.display = 'block';
+    } else {
+      unifiedExitBtn.style.display = 'none';
+    }
+
+    if (configKey) {
+      const container = targetPage.querySelector('.panorama-frame');
+      if (container) setupPanorama(configKey, container.id);
+    }
+  }
+
+  // Функция блокировки раздела. Для блокировки используйте в массиве ниже: document.getElementById('*адрес кнопки*').onclick = underConstructionAlert;
+  function underConstructionAlert() {
+      alert('Ошибка! Данный раздел в разработке.');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Кнопки навигации
+    document.getElementById('unifiedExitBtn').onclick = () => openPage('mainContent');
+    document.getElementById('SchemaPageBtn').onclick = () => openPage('schemaPage', 'schema');
+    document.getElementById('polygonForSearchBtn').onclick = () => openPage('polygonForSearch', 'polygon');
+    document.getElementById('utkBtn').onclick = () => openPage('utk', 'utk');
+  });
+</script>
+</body>
+</html>
